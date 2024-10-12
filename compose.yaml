@@ -1,0 +1,10 @@
+services:
+  openjdk:
+    image: ubuntu:noble
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - '8081:8080'
+    volumes:
+      - ./openjdk/:/home/
+    command: /home/graalvm-examples
