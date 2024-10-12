@@ -10,8 +10,9 @@ jobs:
           java-version: '21'      # See 'Options' section below for all supported versions
           distribution: 'graalvm' # See 'Options' section below for all available distributions
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: "true"
       - name: Example step using Maven plugin  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
-        run: mvn -Pnative package
+        run: mvn -Pnative spring-boot:build-image
         # copy
       - name: copy file via ssh password
         uses: appleboy/scp-action@v0.1.7
@@ -19,7 +20,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           password: ${{ secrets.PASSWORD }}
-          source: "target/graalvm-examples"
+          source: "target/*"
           target: ${{ secrets.TARGET }}
           # 仅复制文件，不复制目录
           strip_components: 1
