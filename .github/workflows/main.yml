@@ -1,0 +1,36 @@
+name: GraalVM build
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'      # See 'Options' section below for all supported versions
+          distribution: 'graalvm' # See 'Options' section below for all available distributions
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Example step using Maven plugin  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
+        run: mvn -Pnative package
+        # copy
+      - name: copy file via ssh password
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          source: "target/graalvm-examples"
+          target: ${{ secrets.TARGET }}
+          # 仅复制文件，不复制目录
+          strip_components: 1
+          rm: true
+      # deploy
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          # cd /home/services/se-invigilation/
+          # docker compose up --force-recreate --no-deps -d openjdk
+          script: ${{ secrets.RECREATE_CONTAINER }}
